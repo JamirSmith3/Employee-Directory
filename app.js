@@ -1,32 +1,23 @@
-import express from 'express';
-import employees from '#db/employees';
+import express from "express";
+import employeeRouter from "./routes/employees.js";
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send('Hello employees!');
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Hello employees!");
 });
 
-app.get('/employees', (req, res) => {
-  res.json(employees);
+app.use("/employees", employeeRouter);
+
+app.use((req, res) => {
+  res.status(404).send("Not Found");
 });
 
-app.get('/employees/random', (req, res) => {
-  const randomIndex = Math.floor(Math.random() * employees.length);
-  res.json(employees[randomIndex]);
-});
-
-app.get('/employees/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const employee = employees.find(emp => emp.id === id);
-
-  if (!employee) {
-    return res
-      .status(404)
-      .json({ message: 'Employee not found' });
-  }
-
-  res.json(employee);
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send("Internal Server Error");
 });
 
 export default app;
